@@ -62,7 +62,7 @@ class Perceptron:
         # Print out the final weight
         self.final_print()
         
-        
+
     ''' Print final weights and instances has wrong prediction at the end of training '''
     def final_print(self):
         print('FINAL WEIGHTS ARE:\n')
@@ -154,11 +154,11 @@ def split_data(x, y):
 
 
 def main(): 
-    input_user = 'ionosphere.data'  # Take file name from user
-
+    input_user = input('ENTER FILE NAME: ') # Take file name from user 'ionosphere.data'
+    
     X, Y, y_encoded = prep_data(input_user)  # Reading file and separete inout and target features
     feature_size = X.shape[1]  # Get input size
-
+    
     x_train, y_train, x_eval, y_eval = split_data(X, y_encoded)
 
     Epochs = 20

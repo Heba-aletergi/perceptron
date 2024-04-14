@@ -43,7 +43,7 @@ class Perceptron:
                 loss = y_pred - Y.iloc[idx] 
 
                 # Store current 
-                self.store_parameter(y_pred, self.W, loss if loss != 0 else None)
+                self.store_parameter(y_pred, self.W, idx if loss != 0 else None)
 
                 # Update the weight
                 self.learning_weight(sum_w, input_vectors, Y.iloc[idx], y_pred)
@@ -60,9 +60,18 @@ class Perceptron:
         # ------ TO DO --------
         
         # Print out the final weight
+        self.final_print()
+        
+        
+    ''' Print final weights and instances has wrong prediction at the end of training '''
+    def final_print(self):
         print('FINAL WEIGHTS ARE:\n')
         for idx, w in enumerate(self.W):
             print(f'Vector({idx+1}) weight: {w}\n')
+        # Print out index of the instances that have worng clasify
+        print('------------------------------------------------------')
+        print('The index of instances has worng prediction:\n')
+        print(self.pred_wrong)
 
 
     ''' Make prediction on Evaluate data '''
@@ -108,7 +117,7 @@ class Perceptron:
             self.W = input_vectors.values - self.W
 
         elif sum_w > 0 and actual_y != pred_y:  # weight too low
-            self.W = input_vectors.values - self.W
+            self.W = input_vectors.values + self.W
 
 def prep_data(data):
     data = pd.read_csv(data, sep=" ")

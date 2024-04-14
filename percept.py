@@ -56,8 +56,14 @@ class Perceptron:
                 preds_eval, wrong_preds_eval = self.predict_evaluate(X_eval, Y_eval)
                 self.eval_acc.append(accuracy_metric(Y_eval, wrong_preds_eval))
             
-        # Calculate  average accuracy 
+        # Calculate  average accuracy
         # ------ TO DO --------
+        
+        # Print out the final weight
+        print('FINAL WEIGHTS ARE:\n')
+        for idx, w in enumerate(self.W):
+            print(f'Vector({idx+1}) weight: {w}\n')
+
 
     ''' Make prediction on Evaluate data '''
     def predict_evaluate(self, x_eval, y_eval):
@@ -99,10 +105,10 @@ class Perceptron:
         if actual_y == pred_y:  # No not update weight, if prediction correct 
             return
         elif sum_w < 0 and actual_y != pred_y:  # weight too hiegt
-            self.w = input_vectors.values - self.W
+            self.W = input_vectors.values - self.W
 
         elif sum_w > 0 and actual_y != pred_y:  # weight too low
-            self.w = input_vectors.values - self.W
+            self.W = input_vectors.values - self.W
 
 def prep_data(data):
     data = pd.read_csv(data, sep=" ")

@@ -40,10 +40,10 @@ class Perceptron:
                 y_pred = self.step_function(sum_w)  # Activation Function 
 
                 # calculate loss for current instance
-                loss = y_pred - Y.iloc[idx] 
+                loss = self.cross_entrpoy(Y.iloc[idx], y_pred) 
 
                 # Store current 
-                self.store_parameter(y_pred, self.W, idx if loss != 0 else None)
+                self.store_parameter(y_pred, self.W, idx if y_pred != Y.iloc[idx] else None)
 
                 # Update the weight
                 self.learning_weight(sum_w, input_vectors, Y.iloc[idx], y_pred)
@@ -55,24 +55,28 @@ class Perceptron:
                 # Evaluate the network performance on Evaluation data
                 preds_eval, wrong_preds_eval = self.predict_evaluate(X_eval, Y_eval)
                 self.eval_acc.append(accuracy_metric(Y_eval, wrong_preds_eval))
+                print(f'The accuracy of evalute data on Epoch({epoch}): {"{:.2f}".format(self.eval_acc[epoch])}')
             
-        # Calculate  average accuracy
-        # ------ TO DO --------
-        
         # Print out the final weight
         self.final_print()
+        # Calculate average accuracy of evaluate data
+        if X_eval is not None :
+            print(f'The average accuracy of evalute data: {"{:.2f}".format(calculate_average_accuracy(self.eval_acc))}')
         
-
     ''' Print final weights and instances has wrong prediction at the end of training '''
     def final_print(self):
+        print('------------------------------------------------------')
         print('FINAL WEIGHTS ARE:\n')
         for idx, w in enumerate(self.W):
-            print(f'Vector({idx+1}) weight: {w}\n')
+            print(f'Vector({idx+1}) weight: {"{:.2f}".format(w)}\n')
         # Print out index of the instances that have worng clasify
         print('------------------------------------------------------')
         print('The index of instances has worng prediction:\n')
         print(self.pred_wrong)
-
+        # Print out the average accuracy of training data
+        print('------------------------------------------------------')
+        avg_train_acc = calculate_average_accuracy(self.train_acc)
+        print(f'The average accuracy of training data: {"{:.2f}".format(avg_train_acc)}')
 
     ''' Make prediction on Evaluate data '''
     def predict_evaluate(self, x_eval, y_eval):
@@ -85,7 +89,6 @@ class Perceptron:
             preds.append(pred)
         return preds, wrong_preds
 
-    
     def predict(self, X_test):
         preds = []
         # iterate over each dataset, abd make prediction on it
@@ -119,6 +122,12 @@ class Perceptron:
         elif sum_w > 0 and actual_y != pred_y:  # weight too low
             self.W = input_vectors.values + self.W
 
+    def cross_entrpoy(self, actual_y, pred_y):
+        epsilon = 1e-15 # to prevent log(0) which is undefined
+        _pred = np.clip(pred_y, epsilon, 1 - epsilon) # clip values to avoid log(0) or log(1)
+        loss = -np.mean(actual_y * np.log(_pred) + (1 - actual_y) * np.log(1 - _pred))
+        return loss
+
 def prep_data(data):
     data = pd.read_csv(data, sep=" ")
     data_df = pd.DataFrame(data, columns=data.columns)
@@ -141,6 +150,9 @@ def accuracy_metric(actual_y, wrong_preds):
         wrong_preds = wrong_preds.reshape(1, -1)
     accuracy = np.mean(np.argmax(y, axis=0) == np.argmax(wrong_preds, axis=0))
     return accuracy * 100'''
+    
+def calculate_average_accuracy(accuracies):
+    return np.mean(accuracies)
 
 ''' Split data into training and Evaluation portion '''
 def split_data(x, y):
@@ -158,20 +170,19 @@ def main():
     
     X, Y, y_encoded = prep_data(input_user)  # Reading file and separete inout and target features
     feature_size = X.shape[1]  # Get input size
-    
+
+    # Split data into Training and Evaluation
     x_train, y_train, x_eval, y_eval = split_data(X, y_encoded)
 
     Epochs = 20
     percept = Perceptron(feature_size)  # create object of perceptron class
-    
+
     # Train the network
     #percept.fit(X, y_encoded, Epochs)   # Train the perceptron
     # Train the network and Evaluate at the same time
     percept.fit(x_train, y_train, Epochs, x_eval, y_eval)
 
     # Evaluate the model on test data
-
-
 
 
 if __name__ == '__main__':
